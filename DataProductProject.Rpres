@@ -1,0 +1,71 @@
+Predicting an Adult Child's Height
+========================================================
+author: Nam Nguyen
+date: `r format(Sys.Date(), format = "%B %d, %Y")`
+width: 1440
+height: 900
+
+Looking into the Future
+========================================================
+
+- Parents want to know their children's heights as they grow up.
+- Children want to know how tall they will be.
+- A model to predict a child's height should help parents and children.
+
+Exploring Galton's Height Data
+========================================================
+left: 60%
+
+- The data set is from Francis Galton's 1885 study on the heights of adult children and their parents. [See here](http://www.math.uah.edu/stat/data/Galton.html).
+- A sample of 898 observations (height, in.):
+
+```{r, echo=FALSE}
+galtonOrg <- read.csv("Galton.csv")
+head(galtonOrg[2:5], 5)
+```
+
+- Adult children's heights appear to correlate with their gender and their parents' heights.
+
+***
+
+```{r, echo=FALSE}
+pairs(galtonOrg[2:5], panel = panel.smooth, main = "Galton's Height Data", col = galtonOrg$Gender)
+```
+
+Building the Prediction Model
+========================================================
+
+- The data set is split 70:30 into training and testing data sets.
+- The training data set is trained with the linear model (lm) method.
+
+```
+modelFit <- train(Height ~ Father + Mother + Gender, data=training, method="lm")
+```
+```{r, echo=FALSE}
+library(caret)
+set.seed(4321)
+inTrain <- createDataPartition(y=galtonOrg$Height, p=0.7, list=FALSE)
+training <- galtonOrg[inTrain, ]
+testing <- galtonOrg[-inTrain, ]
+set.seed(1234)
+modelFit <- train(Height ~ Father + Mother + Gender, data=training, method="glm")
+summary(modelFit)["coefficients"]
+modelFit$results
+```
+
+- Father's and Mother's heights and a child's Gender are significant predictors of the adult child's height.
+- The low r-squared value indicates other factors not in the data may affect a child's height.
+
+Testing and Using the Prediction Model
+========================================================
+
+- The error RMSE of predictions for the testing data is much higher than the error for the training data.
+
+```{r, echo=TRUE}
+predictions <- predict(modelFit, newdata=testing)
+testRMSE <- sqrt(sum((predictions - testing$Height)^2))
+testRMSE
+```
+
+- Until another data set on children's heights and their contributing factors is available, this prediction model only gives some hints on a child's height at adulthood.
+- The prediction model can be accessed at this link: <http://ntngy-bcpd.shinyapps.io/DataProductProject/>
