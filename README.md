@@ -1,7 +1,7 @@
 # DataProductProject
 Project for Developing Data Products course on Coursera
 
--ui.R : shiny user interface
+- ui.R : shiny user interface
 
 - server.R: shiny server
 
